@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+       
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type ="text/javascript">
+         $(document). ready(function ()
+         {
+            var socket  = io.connect();
+
+            socket.on('initialize', function(data)
+            {
+                var name = prompt('Welcome! What is your name?')
+
+                for (let i = 0; i < data.messages.length; i++)
+                {
+                    $('#chatbox').append(`<p>${data.messages[i].name}: ${data.messages[i].message}</p>`);
+                }
+
+                socket.emit('got_a_new_user', {name: name, id: data.id});
+            });
+
+            socket.on('new_user', function(data)
+            {
+                $('#globalMessage').text(`${data.name} has joined the chat.`);
+            });
+
+            $('#form').submit(function(e)
+            {
+                e.preventDefault();
+                socket.emit('new_message', {message: $('#message').val()});
+            });
+
+            socket.on('add_message', function(data)
+            {
+                $('#chatbox').append(`<p>${data.name}: ${data.message}</p>`);
+            });
+
+        });
+    </script>
+    <title>Group Chat!</title>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Conversation Board</h1>
+        <p id="globalMessage"></p>
+        <div id="chatbox">
+    
+        </div>
+        <form action="" id="form">
+            <input type="text" name="message" id="message">
+            <input type="submit" value="Send" class="btn-success">
+        </form>
+    </div>
+</body>
+</html>
